@@ -16,6 +16,27 @@ class Auth {
     // o yüzden Provider ile yayınlıyacağız.
   }
 
+// E mail ile Kayıt olmak için kullanıcıdan aldığımız bilgileri buraya gönderiyoruz.
+// burasıda bize user bilgilerini gönderiyor.
+  Future<User> createUserWithEmailAndPassword(
+      String email, String password) async {
+    final userCredentials = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email, password: password);
+    return userCredentials.user;
+  }
+
+// E mail girişi için
+  Future<User> signInWithEmailAndPassword(String email, String password) async {
+    final userCredentials = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email, password: password);
+    return userCredentials.user;
+  }
+
+  // Şifre sıfırlama methodu
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
   // logout işlemi yapılması
   Future<void> signOut() async {
     await _firebaseAuth.signOut();

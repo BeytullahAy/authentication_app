@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors, camel_case_types
 
+import 'package:authentication_app/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:email_validator/email_validator.dart'; // e mail kontrolü için kütüphane
+import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart'; // e mail kontrolü için kütüphane
 
 //Bu değişken sayesinde ya kayıt olma ekranına ya da giriş yapma ekranına geçecek.
 // sınıf içinde  tanımlanmaz
@@ -21,11 +23,12 @@ class _emailSingInPageState extends State<emailSingInPage> {
     return SafeArea(
       child: Scaffold(
         body: Center(
-          // hangisi seçiliyse o sayfaya aç
-          child: _formStatus == FormStatus.signIn
-              ? buildSingInForm()
-              : buildRegisterInForm(),
-        ),
+            // hangisi seçiliyse o sayfaya aç
+            child: _formStatus == FormStatus.signIn
+                ? buildSingInForm()
+                : _formStatus == FormStatus.register
+                    ? buildRegisterInForm()
+                    : buildResetForm()),
       ),
     );
   }
@@ -54,6 +57,7 @@ class _emailSingInPageState extends State<emailSingInPage> {
               height: 20,
             ),
             TextFormField(
+              controller: _emailController,
               validator: (val) {
                 // Email paketindeki gibi email değilse hata vericek
                 if (!EmailValidator.validate(val)) {
@@ -73,6 +77,7 @@ class _emailSingInPageState extends State<emailSingInPage> {
               height: 10,
             ),
             TextFormField(
+                controller: _passwordController,
                 validator: (valu) {
                   // @ işareti içermiyorsa hata vericek
                   if (valu.length < 6) {
@@ -91,9 +96,25 @@ class _emailSingInPageState extends State<emailSingInPage> {
               height: 10,
             ),
             ElevatedButton(
-                onPressed: () {
-                  // gelen mesajı telefon ekranına yazdırıyor
-                  print(_signInFormKey.currentState.validate());
+                onPressed: () async {
+                  // Eğer formdaki e mail ve şifre kurallara uyuyor ise.
+                  if (_signInFormKey.currentState.validate()) {
+                    // user çekme işlemi
+                    final user = await Provider.of<Auth>(context, listen: false)
+                        .signInWithEmailAndPassword(
+                            _emailController.text, _passwordController.text);
+
+                    // eğer doğrulanmamışsa
+                    if (user != null && !user.emailVerified) {
+                      await _showMyDialog();
+                      // kullanıcıyı çıkart.
+                      // çünkü firebase tarafında kullanıcıgı giriş yaptı sadece onaylamadı.
+                      // eğer kullanıcı uygulamayı kapatıp açarsa direkt homepage ekranına gider.
+                      await Provider.of<Auth>(context, listen: false).signOut();
+                    }
+                    // anladık dedikten sonra mail onayı yapmadıgı için önceki sayfaya atıcak.
+                    Navigator.pop(context);
+                  }
                 },
                 child: Text("Giriş")),
             SizedBox(
@@ -107,15 +128,23 @@ class _emailSingInPageState extends State<emailSingInPage> {
                   });
                 },
                 child: Text("Yeni Kayıt İçin Tıklayınız")),
+            SizedBox(
+              height: 10,
+            ),
+            TextButton(
+                onPressed: () {
+                  setState(() {
+                    // sayfayı yenile ama resigstera çevirip yenile.
+                    _formStatus = FormStatus.reset;
+                  });
+                },
+                child: Text("Şifremi unuttum")),
           ],
         ),
       ),
     );
   }
 
-//
-//
-//
 // Kayıt olma formu
   Widget buildRegisterInForm() {
     // bu formun keyini oluşturduk.
@@ -195,8 +224,37 @@ class _emailSingInPageState extends State<emailSingInPage> {
               height: 10,
             ),
             ElevatedButton(
-                onPressed: () {
-                  print(_registerFormKey.currentState.validate());
+                onPressed: () async {
+                  // eğer bütün form elemanları okey verdiyse forma
+                  if (_registerFormKey.currentState.validate()) {
+                    // yeni bir kullanıcı oluşması için provider ile Auth classına
+                    // bilgileri yolluyoruz.
+                    // daha sonra userın gelmesini bekliyoruz
+                    // geldikten sonra
+                    final user = await Provider.of<Auth>(context, listen: false)
+                        .createUserWithEmailAndPassword(
+                            _emailController.text, _passwordController.text);
+                    print(user.uid);
+
+                    // eğer user içindeki veri doğrulanmamış ise
+                    // e maile doğrulama mesajı gönder.
+                    if (user != null && !user.emailVerified) {
+                      await user.sendEmailVerification();
+                    }
+
+                    // kullanıcı anladım yazısına tıklayana kadar ekranda kal (alert diaglog)
+                    await _showMyDialog();
+
+                    // kullanıcıyı çıkart.
+                    // çünkü firebase tarafında kullanıcıgı giriş yaptı sadece onaylamadı.
+                    // eğer kullanıcı uygulamayı kapatıp açarsa direkt homepage ekranına gider.
+                    await Provider.of<Auth>(context, listen: false).signOut();
+
+                    setState(() {
+                      // giriş yapma ekranına yolla
+                      _formStatus = FormStatus.signIn;
+                    });
+                  }
                 },
                 child: Text("Kayıt")),
             SizedBox(
@@ -213,6 +271,117 @@ class _emailSingInPageState extends State<emailSingInPage> {
           ],
         ),
       ),
+    );
+  }
+
+  // Şifre yenileme
+  Widget buildResetForm() {
+    final _resetFormKey = GlobalKey<FormState>();
+    TextEditingController _emailController = TextEditingController();
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Form(
+        key: _resetFormKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Şifre Yenileme', style: TextStyle(fontSize: 25)),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: _emailController,
+              validator: (value) {
+                if (!EmailValidator.validate(value)) {
+                  return 'Lütfen Geçerli bir adres giriniz';
+                } else {
+                  return null;
+                }
+              },
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.email),
+                  hintText: 'E-mail',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0))),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (_resetFormKey.currentState.validate()) {
+                  await Provider.of<Auth>(context, listen: false)
+                      .sendPasswordResetEmail(_emailController.text);
+
+                  await _showResetPasswordDialog();
+
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Gönder'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // kullanıcıyı kayıt olmak için email gönderdikten sonra alert diyalog ekranı.
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // dışarıya tıklanıp tıklanmama durumu
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Onay Gerekiyor'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Merhaba lütfen mailinizi kontrol ediniz.'),
+                Text('Onay linkine tıklayıp tekrar giriş yapmalısınız.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Anladım'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showResetPasswordDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('ŞİFRE YENİLEME'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Merhaba, lütfen mailinizi kontrol ediniz,'),
+                Text('Linki tıklayarak şifrenizi yenileyiniz.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('ANLADIM'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
