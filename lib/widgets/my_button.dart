@@ -15,6 +15,8 @@ class myButton extends StatelessWidget {
       height: 50,
       width: 300,
       child: RaisedButton(
+        // butona tıklandığında kitlenecek ve renginin biraz daha açık olması istiyorum.
+        disabledColor: color.withOpacity(0.8),
         color: color,
         onPressed: onPressed,
         child: child,

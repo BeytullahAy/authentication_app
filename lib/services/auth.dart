@@ -20,4 +20,10 @@ class Auth {
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
+
+  // bu method firebase ile konusacak.
+  // log in mi log out mu onun bilgisi alınması işlemi için
+  Stream<User> authStatus() {
+    return _firebaseAuth.authStateChanges();
+  }
 }
