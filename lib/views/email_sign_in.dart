@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, camel_case_types
 
 import 'package:authentication_app/services/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:provider/provider.dart'; // e mail kontrolü için kütüphane
@@ -225,35 +226,41 @@ class _emailSingInPageState extends State<emailSingInPage> {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  // eğer bütün form elemanları okey verdiyse forma
-                  if (_registerFormKey.currentState.validate()) {
-                    // yeni bir kullanıcı oluşması için provider ile Auth classına
-                    // bilgileri yolluyoruz.
-                    // daha sonra userın gelmesini bekliyoruz
-                    // geldikten sonra
-                    final user = await Provider.of<Auth>(context, listen: false)
-                        .createUserWithEmailAndPassword(
-                            _emailController.text, _passwordController.text);
-                    print(user.uid);
+                  try {
+                    // eğer bütün form elemanları okey verdiyse forma
+                    if (_registerFormKey.currentState.validate()) {
+                      // yeni bir kullanıcı oluşması için provider ile Auth classına
+                      // bilgileri yolluyoruz.
+                      // daha sonra userın gelmesini bekliyoruz
+                      // geldikten sonra
+                      final user = await Provider.of<Auth>(context,
+                              listen: false)
+                          .createUserWithEmailAndPassword(
+                              _emailController.text, _passwordController.text);
+                      print(user.uid);
 
-                    // eğer user içindeki veri doğrulanmamış ise
-                    // e maile doğrulama mesajı gönder.
-                    if (user != null && !user.emailVerified) {
-                      await user.sendEmailVerification();
+                      // eğer user içindeki veri doğrulanmamış ise
+                      // e maile doğrulama mesajı gönder.
+                      if (user != null && !user.emailVerified) {
+                        await user.sendEmailVerification();
+                      }
+
+                      // kullanıcı anladım yazısına tıklayana kadar ekranda kal (alert diaglog)
+                      await _showMyDialog();
+
+                      // kullanıcıyı çıkart.
+                      // çünkü firebase tarafında kullanıcıgı giriş yaptı sadece onaylamadı.
+                      // eğer kullanıcı uygulamayı kapatıp açarsa direkt homepage ekranına gider.
+                      await Provider.of<Auth>(context, listen: false).signOut();
+
+                      setState(() {
+                        // giriş yapma ekranına yolla
+                        _formStatus = FormStatus.signIn;
+                      });
                     }
-
-                    // kullanıcı anladım yazısına tıklayana kadar ekranda kal (alert diaglog)
-                    await _showMyDialog();
-
-                    // kullanıcıyı çıkart.
-                    // çünkü firebase tarafında kullanıcıgı giriş yaptı sadece onaylamadı.
-                    // eğer kullanıcı uygulamayı kapatıp açarsa direkt homepage ekranına gider.
-                    await Provider.of<Auth>(context, listen: false).signOut();
-
-                    setState(() {
-                      // giriş yapma ekranına yolla
-                      _formStatus = FormStatus.signIn;
-                    });
+                  } on FirebaseAuthException catch (e) {
+                    print(
+                        "kayıt formu içerisinde hata yakalandı, ${e.message}");
                   }
                 },
                 child: Text("Kayıt")),

@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
     return Provider<Auth>(
       create: (context) => Auth(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.orange,

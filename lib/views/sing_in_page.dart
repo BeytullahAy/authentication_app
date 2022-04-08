@@ -14,6 +14,7 @@ class signInPage extends StatefulWidget {
 class _signInPageState extends State<signInPage> {
   // butonlara tıkladığında diğer sayfaya gidene kadar
   // birden fazla kez basılıp id alabilme hatasını çözmek için
+  // false iken butonlar aktif
   bool _isLoading = false;
 
   // anonim butonuna tıklandığında olacak işlemler
@@ -28,6 +29,23 @@ class _signInPageState extends State<signInPage> {
     final user =
         await Provider.of<Auth>(context, listen: false).signInAnonymously();
     setState(() {
+      _isLoading = false;
+    });
+
+    print(user.uid);
+  }
+
+// google ile direkt giriş kısmı
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      // butona tıklandığında true ya çevir ve kitle
+      _isLoading = true;
+    });
+
+    final user =
+        await Provider.of<Auth>(context, listen: false).signInWithGoogle();
+    setState(() {
+      // signInWithGoogle dinliyor gelmezse false olmuyor.
       _isLoading = false;
     });
 
@@ -69,18 +87,20 @@ class _signInPageState extends State<signInPage> {
             myButton(
               color: Colors.yellow,
               child: Text("Sing In  Email/password"),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => emailSingInPage())));
-              },
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: ((context) => emailSingInPage())));
+                    },
             ),
             SizedBox(height: 10),
             myButton(
               color: Colors.lightBlueAccent,
               child: Text("Google Sign İn"),
-              onPressed: () {},
+              onPressed: _isLoading ? null : _signInWithGoogle,
             ),
           ],
         ),
