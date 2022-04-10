@@ -1,12 +1,23 @@
 # AUTHENTİCATON APP
 
-<!---  <img src="https://user-images.githubusercontent.com/81561442/161435416-30a7fc93-3592-4951-8e4f-15446639f4c3.png" width='600'>     ---> 
-
 Authentication App adlı uygulamanın amacı kısaca Firebase Authentication sayesinde 3 farklı tipde kullanıcı girişi yapmayı sağlamaktadır.
 Bu tipler;
-- 1- Anonom giriş
+
+- 1- Anonim giriş
+<img src="https://user-images.githubusercontent.com/81561442/162619795-aca69263-9ab2-47d3-b9f6-24d34b00efd0.jpg" width='400'> 
+
 - 2- E-mail ile giriş
-- 3- Google ile giriş
+<img src="https://user-images.githubusercontent.com/81561442/162619772-a0c11ad1-8b07-4b1c-8d19-789916505937.jpg" width='5000'>     
+
+
+
+- 3- Google ile giriş 
+<img src="https://user-images.githubusercontent.com/81561442/162619840-f3e06f04-0e80-48c6-acd4-05258381d391.jpg" width='600'> 
+
+
+
+
+
 
 ## İÇERİĞİ
 
