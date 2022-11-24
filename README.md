@@ -2,7 +2,7 @@
 
 The purpose of launching the application called Authentication App is to provide 3 different types of user login, in short, thanks to Firebase Authentication. These types are;
 
-1- Anonymous login
+- 1- Anonymous login
 <img src="https://user-images.githubusercontent.com/81561442/162619795-aca69263-9ab2-47d3-b9f6-24d34b00efd0.jpg" width='400'> 
 
 - 2- Login by e-mail
