@@ -1,17 +1,14 @@
 # AUTHENTİCATON APP
 
-Authentication App adlı uygulamanın amacı kısaca Firebase Authentication sayesinde 3 farklı tipde kullanıcı girişi yapmayı sağlamaktadır.
-Bu tipler;
+The purpose of launching the application called Authentication App is to provide 3 different types of user login, in short, thanks to Firebase Authentication. These types are;
 
-- 1- Anonim giriş
+1- Anonymous login
 <img src="https://user-images.githubusercontent.com/81561442/162619795-aca69263-9ab2-47d3-b9f6-24d34b00efd0.jpg" width='400'> 
 
-- 2- E-mail ile giriş
+- 2- Login by e-mail
 <img src="https://user-images.githubusercontent.com/81561442/162619772-a0c11ad1-8b07-4b1c-8d19-789916505937.jpg" width='5000'>     
 
-
-
-- 3- Google ile giriş 
+- 3- Login with Google
 <img src="https://user-images.githubusercontent.com/81561442/162619840-f3e06f04-0e80-48c6-acd4-05258381d391.jpg" width='600'> 
 
 
@@ -19,17 +16,17 @@ Bu tipler;
 
 
 
-## İÇERİĞİ
+## CONTENT
 
-- signInAnonymously              (Anonim girişi için)
-- createUserWithEmailAndPassword (E-mail ve Şifre girişinde kullanılacak user'ı oluşturmak için)
-- signInWithEmailAndPassword     (E-mail ve Şifre girişi için)
-- sendPasswordResetEmail         (Şifremi unuttum yapabilmek için şifre sıfırlamak için)
-- signInWithGoogle               (Google girişi için)
-- signOut                        (Hesaptan çıkmak için)
-- authStatus                     (Hesap durumunu öğrenmek için)
+- signInAnonymously (For anonymous login)
+- createUserWithEmailAndPassword (To create the user to be used for E-mail and Password login)
+- signInWithEmailAndPassword (for E-mail and Password entry)
+- sendPasswordResetEmail (To reset password so that I can forget my password)
+- signInWithGoogle (for Google login)
+- signOut (To sign out)
+- authStatus (to find out account status)
 
-Methodlarının kullanılmasıdır.
+It is the use of methods.
 
 <!---       <img src="">     --->   
 
